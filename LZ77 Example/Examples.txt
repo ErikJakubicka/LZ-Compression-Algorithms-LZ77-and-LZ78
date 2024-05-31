@@ -7,4 +7,3 @@ abracadabra window_size: 9 look_size: 10
 abracadabrad window_size: 7 look_size: 5
 
 abracadabrarray window_size: 14 look_size: 6
-
