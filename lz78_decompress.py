@@ -92,7 +92,7 @@ if __name__ == "__main__":
     compressed_data, search_buffer_bits = read_compressed_data(input_file_path)
     decoded_sequence = lz78_decompress(compressed_data)
     print(f"Decoded sequence: {decoded_sequence}")
-    print(f"Matched Letter bits size is: {search_buffer_bits}")
+    print(f"Matched Letter bits size is: {search_buffer_bits}\n")
 
     character_count = count_characters_in_compressed_file(input_file_path)
 
