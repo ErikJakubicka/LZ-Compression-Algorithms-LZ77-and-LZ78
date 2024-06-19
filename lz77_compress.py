@@ -198,7 +198,6 @@ if __name__ == "__main__":
         print("Entered search bits size is:", search_buffer_bits)
         print("Entered lookahead buffer bits size is:", look_buffer_bits)
 
-    print("Encoded string:\n ")
 
     with open(output_file_path, "wb") as output_file:
         # Write the identifier for the compression algorithm (e.g., "LZ77")
@@ -210,4 +209,4 @@ if __name__ == "__main__":
         # Pass search buffer and look buffer bits to the function
         write_compressed_data(encoded_data, output_file, search_buffer_bits, look_buffer_bits)
 
-    print(f"Compressed file generated as {output_file_path}")
+    print(f"\nCompressed file generated as {output_file_path}")
