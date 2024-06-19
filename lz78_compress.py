@@ -175,11 +175,7 @@ if __name__ == "__main__":
 
         print("Selected bytes for compression:", input_sequence)
         print("Entered matched letters bits size is:", max_prefix_length)
-
-        print(compressed_data)
         output_file_path = args.output_file
-
-    print("Encoded string:\n ")
 
     with open(output_file_path, "wb") as output_file:
         # Write the identifier for the compression algorithm (e.g., "LZ78")
@@ -191,5 +187,5 @@ if __name__ == "__main__":
         # Write the compressed data to the file
         write_compressed_data(compressed_data, output_file, max_prefix_length)
 
-    print(f"Compressed file generated as {output_file_path}")
+    print(f"\nCompressed file generated as {output_file_path}")
     
