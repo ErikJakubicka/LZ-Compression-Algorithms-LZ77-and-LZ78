@@ -65,7 +65,9 @@ def lz78_decompress(compressed_data):
 def count_characters_in_compressed_file(file_path):
     character_count = {}
     with open(file_path, "rb") as file:
-        # Read the entire file as bytes
+        # Skip the first 8 bytes (4 bytes for identifier + 4 bytes for buffer parameters)
+        file.seek(8)
+        # Read the rest of the file as bytes
         data = file.read()
         # Iterate over each byte
         for byte in data:
