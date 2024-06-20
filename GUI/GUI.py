@@ -235,13 +235,13 @@ class MyGUI(QMainWindow):
     def read_compressed_data77(self, file_path):
         with open(file_path, "rb") as file:
             # Read the first two bytes to get the search buffer and look buffer parameters
-            buffer_bytes = file.read(2)
-            if len(buffer_bytes) < 2:
+            buffer_bytes = file.read(8)
+            if len(buffer_bytes) < 8:
                 raise ValueError("File is too short to contain search buffer and look buffer parameters")
 
             # Extract search buffer and look buffer parameters
-            search_buffer = buffer_bytes[0]
-            look_buffer = buffer_bytes[1]
+            search_buffer = int.from_bytes(buffer_bytes[:4], 'big')
+            look_buffer = int.from_bytes(buffer_bytes[4:], 'big')
 
             # Calculate the number of bits needed for search buffer and look buffer
             search_buffer_bits = math.ceil(math.log2(search_buffer + 1))
@@ -293,10 +293,12 @@ class MyGUI(QMainWindow):
                 decompressed_string += char
         return decompressed_string
 
-    def count_characters_in_compressed_file(self, file_path):
+    def count_characters_in_compressed_file_LZ77(self, file_path):
         character_count = {}
         with open(file_path, "rb") as file:
-            # Read the entire file as bytes
+            # Skip the first 8 bytes (8 bytes for buffer parameters)
+            file.seek(8)
+            # Read the rest of the file as bytes
             data = file.read()
             # Iterate over each byte
             for byte in data:
@@ -506,7 +508,7 @@ class MyGUI(QMainWindow):
 
         with open("compressed_LZ77.txt", "wb") as output_file:
             # Write search_buffer_bits and look_buffer_bits to the beginning of the file
-            output_file.write(bytes([user_input_2, user_input_3]))
+            output_file.write(user_input_2.to_bytes(4, 'big') + user_input_3.to_bytes(4, 'big'))
 
             # Pass search buffer and look buffer bits to the function
             self.write_compressed_data(self.encoded_data, output_file, search_buffer_bits, look_buffer_bits)
@@ -546,6 +548,24 @@ class MyGUI(QMainWindow):
             compressed_data.append((dictionary[current_match], " "))
 
         return compressed_data
+
+    def count_characters_in_compressed_file_LZ78(self, file_path):
+        character_count = {}
+        with open(file_path, "rb") as file:
+            # Skip the first 8 bytes (4 bytes for identifier + 4 bytes for buffer parameters)
+            file.seek(4)
+            # Read the rest of the file as bytes
+            data = file.read()
+            # Iterate over each byte
+            for byte in data:
+                # Decode the byte to a character
+                char = chr(byte)
+                # Increment the count for the character
+                if char in character_count:
+                    character_count[char] += 1
+                else:
+                    character_count[char] = 1
+        return character_count
 
     def print_lz78_step(self, input_string):
         dictionary = {"": 0}  # Initialize the dictionary with an empty string
@@ -647,7 +667,7 @@ class MyGUI(QMainWindow):
         max_prefix_length = max(item[0].bit_length() for item in encoded_data)
 
         # Write max_prefix_length to the beginning of the file
-        output_file.write(bytes([max_prefix_length]))
+        output_file.write(max_prefix_length.to_bytes(4, 'big'))
 
         for item in encoded_data:
             search_buffer = item[0]
@@ -682,12 +702,12 @@ class MyGUI(QMainWindow):
     def read_compressed_data78(self, file_path):
         with open(file_path, "rb") as file:
             # Read the first bytes to get the search buffer
-            buffer_bytes = file.read(1)
-            if len(buffer_bytes) < 1:
+            buffer_bytes = file.read(4)
+            if len(buffer_bytes) < 4:
                 raise ValueError("File is too short to contain search buffer and look buffer parameters")
 
             # Extract search buffer
-            search_buffer_bits = buffer_bytes[0]
+            search_buffer_bits = int.from_bytes(buffer_bytes[:4], 'big')
 
             # Initialize variables
             compressed_data = []
@@ -956,7 +976,7 @@ class MyGUI(QMainWindow):
         self.label2.setText(f"Search bits size is: {search_buffer_bits}")
         self.label3.setText(f"Lookahead buffer bits size is: {look_buffer_bits}")
 
-        character_count = self.count_characters_in_compressed_file(compressed_file_path)
+        character_count = self.count_characters_in_compressed_file_LZ77(compressed_file_path)
 
         # Calculate the sizes
         original_size = len(decoded_sequence)
@@ -964,9 +984,6 @@ class MyGUI(QMainWindow):
 
         # Calculate the success rate
         success_rate = (1 - (compressed_size / original_size)) * 100
-
-        # Calculate the success rate of bits
-        success_rate_bits = (1 - (compressed_size / original_size)) * 100
 
         self.label4.setText(f"Character count in compressed file: {compressed_size}")
         self.label5.setText(f"Character count in original string: {original_size}")
@@ -1020,7 +1037,7 @@ class MyGUI(QMainWindow):
         self.label.setText(f"Decompressed data: {decoded_sequence}")
         self.label2.setText(f"Matched Letter bits size is: {search_buffer_bits}")
 
-        character_count = self.count_characters_in_compressed_file(compressed_file_path)
+        character_count = self.count_characters_in_compressed_file_LZ78(compressed_file_path)
 
         # Calculate the sizes
         original_size = len(decoded_sequence)
